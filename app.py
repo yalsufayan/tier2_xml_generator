@@ -303,12 +303,11 @@ def create_xml(dataset: Dataset):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/download/{file_path}")
-def download_file(file_path: str):
-    file_path = os.path.join(".", file_path)
+def download_file(filename: str):
+    file_path = os.path.join(TEMP_DIR, filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(path=file_path, filename=file_path, media_type='application/zip')
-
+    return FileResponse(path=file_path, filename=filename, media_type='application/zip')
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
