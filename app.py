@@ -287,6 +287,9 @@ def generate_xml(dataset: Dataset):
 
             ET.SubElement(contact_elem, "lastModified").text = contact.lastModified
 
+    # Write XML to file
+    tree = ET.ElementTree(root)
+    tree.write("./output.xml", encoding="utf-8", xml_declaration=True)
     return ET.tostring(root, encoding='utf-8', method='xml').decode()
 
 @app.post("/generate_xml")
