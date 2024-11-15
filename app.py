@@ -298,7 +298,7 @@ def create_xml(dataset: Dataset):
         xml_data = generate_xml(dataset)
         with zipfile.ZipFile("Tier2Report.zip", 'w') as zip_file:
             zip_file.write("output.xml")
-        return {"xml": "Produced"}
+        return {"xml": xml_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -308,7 +308,7 @@ def download_file(filename: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(path=file_path, filename=filename, media_type='application/zip')
-    
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
