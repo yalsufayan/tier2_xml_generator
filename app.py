@@ -5,9 +5,21 @@ from typing import List, Optional
 import os
 import zipfile
 from fastapi.middleware.cors import CORSMiddleware
-
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+from main import get_final_json
 
 app = FastAPI()
+
+# Initialize the app with your service account key
+cred = credentials.Certificate('service.json')
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://evotrack-ff16b-default-rtdb.firebaseio.com/'
+})
+
+# Reference to the Realtime Database
+ref = db.reference('/')
 
 # Define allowed origins
 origins = [
@@ -15,6 +27,15 @@ origins = [
     "http://localhost:3000",
     "http://example.com"
 ]
+
+# Function to add data to Firestore
+def add_document(collection_name, document_id, data):
+    try:
+        # Add document to Firestore
+        db.collection(collection_name).document(document_id).set(data)
+        print(f"Document '{document_id}' successfully written to '{collection_name}' collection.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Add CORS middleware
 app.add_middleware(
@@ -298,7 +319,36 @@ def create_xml(dataset: Dataset):
         xml_data = generate_xml(dataset)
         with zipfile.ZipFile("Tier2Report.zip", 'w') as zip_file:
             zip_file.write("output.xml")
+        
+        # collection = "users"
+        # doc_id = "reports"
+        # user_data = {
+        # "xml": xml_data
+        # }
+        # add_document(collection, doc_id, user_data)
+
+        ref.set({
+            'xml': xml_data
+        })
         return {"xml": xml_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Add an endpoint to fetch data from main.py and generate XML
+@app.get("/generate_xml_from_main")
+def generate_xml_from_main():
+    try:
+        # Get JSON from main.py
+        dataset_json = get_final_json()
+        
+        # Use the dataset to generate XML
+        xml_data = generate_xml(Dataset(**dataset_json))  # Parse JSON into Dataset model
+        
+        # Save XML to a file and return
+        with open("output_from_main.xml", "w") as file:
+            file.write(xml_data)
+        
+        return {"message": "XML generated successfully", "xml": xml_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
