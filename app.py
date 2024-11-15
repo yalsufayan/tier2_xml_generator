@@ -296,11 +296,18 @@ def generate_xml(dataset: Dataset):
 def create_xml(dataset: Dataset):
     try:
         xml_data = generate_xml(dataset)
-        with zipfile.ZipFile("zip_filename.zip", 'w') as zip_file:
+        with zipfile.ZipFile("Tier2Report.zip", 'w') as zip_file:
             zip_file.write("output.xml")
         return {"xml": "Produced"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/download/{file_path}")
+def download_file(file_path: str):
+    file_path = os.path.join(".", file_path)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(path=file_path, filename=file_path, media_type='application/zip')
 
 if __name__ == "__main__":
     import uvicorn
