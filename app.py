@@ -9,6 +9,8 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from main import get_final_json
+from firebase_admin import firestore  # Change this import to firestore
+
 
 app = FastAPI()
 
