@@ -28,6 +28,16 @@ origins = [
     "http://example.com"
 ]
 
+# Reference to Firestore (Firestore, not Realtime Database)
+db = firestore.client()
+
+# Define allowed origins
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://example.com"
+]
+
 # Function to add data to Firestore
 def add_document(collection_name, document_id, data):
     try:
@@ -343,6 +353,14 @@ def generate_xml_from_main():
         
         # Use the dataset to generate XML
         xml_data = generate_xml(Dataset(**dataset_json))  # Parse JSON into Dataset model
+
+        # Save to Firestore
+        data = {
+            "xmlData": xml_string,
+            "reportYear": dataset.reportyear
+        }
+        add_document("tier2_reports", str(dataset.reportyear), data)
+        return {"message": "XML generated and saved to Firestore successfully!"}
         
         # Save XML to a file and return
         with open("output_from_main.xml", "w") as file:
