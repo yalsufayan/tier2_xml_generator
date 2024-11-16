@@ -83,11 +83,11 @@ def get_final_json():
                     "zipcode": business.get("zip", "00000")
                 },
                 "mailingAddress": {
-                    "street": business.get("mailing_address", {}).get("street", "DummyStreet"),
-                    "city": business.get("mailing_address", {}).get("city", "DummyCity"),
-                    "state": business.get("mailing_address", {}).get("state", "DummyState"),
-                    "zipcode": business.get("mailing_address", {}).get("zipcode", "00000"),
-                    "country": business.get("mailing_address", {}).get("country", "DummyCountry")
+                    "street": business.get("street"),
+                    "city": business.get("city"),
+                    "state": business.get("state"),
+                    "zipcode": business.get("zip"),
+                    "country": business.get("country")
                 },
                 "county": business.get("county", "DummyCounty"),
                 "fireDistrict": business.get("FireDistrict", "DummyFireDistrict"),
