@@ -359,9 +359,9 @@ def generate_xml_from_main():
         # Save to Firestore
         data = {
             "xmlData": xml_data,
-            "reportYear": dataset.reportyear
+            "reportYear": "2024"
         }
-        add_document("tier2_reports", str(dataset.reportyear), data)
+        add_document("tier2_reports", str("2024"), data)
         return {"message": "XML generated and saved to Firestore successfully!"}
         
         # Save XML to a file and return
