@@ -358,7 +358,7 @@ def generate_xml_from_main():
 
         # Save to Firestore
         data = {
-            "xmlData": xml_string,
+            "xmlData": xml_data,
             "reportYear": dataset.reportyear
         }
         add_document("tier2_reports", str(dataset.reportyear), data)
