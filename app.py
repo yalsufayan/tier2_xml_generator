@@ -10,6 +10,11 @@ from firebase_admin import credentials
 from firebase_admin import db
 from main import get_final_json
 from firebase_admin import firestore  # Change this import to firestore
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 
 app = FastAPI()
@@ -39,6 +44,38 @@ origins = [
     "http://localhost:3000",
     "http://example.com"
 ]
+
+def send_email_with_attachment(sender_email: str, sender_password: str, recipient_email: str, subject: str, body: str, attachment_path: str):
+    try:
+        # Create the email components
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Attach the file
+        with open(attachment_path, 'rb') as attachment:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header(
+            'Content-Disposition',
+            f'attachment; filename={os.path.basename(attachment_path)}',
+        )
+        msg.attach(part)
+
+        # Set up the SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+        server.quit()
+
+        print(f"Email sent successfully to {recipient_email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        raise
 
 # Function to add data to Firestore
 def add_document(collection_name, document_id, data):
@@ -329,20 +366,20 @@ def generate_xml(dataset: Dataset):
 def create_xml(dataset: Dataset):
     try:
         xml_data = generate_xml(dataset)
-        with zipfile.ZipFile("Tier2Report.zip", 'w') as zip_file:
-            zip_file.write("output.xml")
-        
-        # collection = "users"
-        # doc_id = "reports"
-        # user_data = {
-        # "xml": xml_data
-        # }
-        # add_document(collection, doc_id, user_data)
+        zip_file_path = "Tier2Report.zip"
 
-        ref.set({
-            'xml': xml_data
-        })
-        return {"xml": xml_data}
+        # Create ZIP file
+        with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+            zip_file.write("output.xml")
+
+        # Send the ZIP file to the recipient
+        sender_email = "kappsmapalo@gmail.com"
+        sender_password = "mkwt pyym fryt muoy"
+        subject = "Your Tier2Report ZIP File"
+        body = "Please find the Tier2Report attached v2."
+        send_email_with_attachment(sender_email, sender_password, "rahmkanyanta@gmail.com", subject, body, zip_file_path)
+
+        return {"message": "XML generated and email sent successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
