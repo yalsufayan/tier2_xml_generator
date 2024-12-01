@@ -363,7 +363,7 @@ def generate_xml(dataset: Dataset):
     return ET.tostring(root, encoding='utf-8', method='xml').decode()
 
 @app.post("/generate_xml")
-def create_xml(dataset: Dataset):
+def create_xml():
     try:
         # Get JSON from main.py
         dataset_json = get_final_json()
@@ -382,7 +382,7 @@ def create_xml(dataset: Dataset):
 
         # Save XML to a file and return
         with open("Tier2.xml", "w") as file:
-            file.write(data)
+            file.write(str(data))
 
         # Create ZIP file
         with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
