@@ -370,19 +370,13 @@ def create_xml():
         
         # Use the dataset to generate XML
         xml_data = generate_xml(Dataset(**dataset_json))  # Parse JSON into Dataset model
-
-        # Save to Firestore
-        data = {
-            "xmlData": xml_data,
-            "reportYear": "2024"
-        }
-
+        
         # xml_data = generate_xml(dataset)
         zip_file_path = "Tier2Report.zip"
 
         # Save XML to a file and return
         with open("Tier2.xml", "w") as file:
-            file.write(str(data))
+            file.write(xml_data))
 
         # Create ZIP file
         with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
