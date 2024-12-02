@@ -1,4 +1,5 @@
 import requests
+import json
 
 BASE_URL = "https://envotrack.com/api/1.1/obj"
 API_KEY = "7475aebe1a2505a2a0581b0c24b48562"
@@ -14,6 +15,9 @@ headers = {
 }
 
 def fetch_data(data_type):
+    """
+    Fetches data from the API for the specified data type with pagination handling.
+    """
     all_data = []
     cursor = None
     while True:
@@ -37,49 +41,28 @@ def fetch_data(data_type):
     return all_data
 
 def get_final_json():
+    """
+    Generates the final JSON structure by combining business and chemical inventory data.
+    """
     business_data = fetch_data(DATA_TYPES["Business"])
     chemical_inventory_data = fetch_data(DATA_TYPES["Chemical Inventory"])
     business_dict = {biz["_id"]: biz for biz in business_data}
 
-    final_json = {"reportyear": 2019, "facilities": []}
+    final_json = {"reportYear": 2019, "facilities": []}
 
     for chem in chemical_inventory_data:
         business_id = chem.get("business")
         if business_id in business_dict:
             business = business_dict[business_id]
-            
-            # Add dummy values where data might be missing
-            emergency_contacts = [
-                {
-                    "firstName": "DummyFirstName",
-                    "lastName": "DummyLastName",
-                    "title": "DummyTitle",
-                    "email": "dummy@example.com",
-                    "mailingAddress": {
-                        "street": "DummyStreet",
-                        "city": "DummyCity",
-                        "state": "DummyState",
-                        "zipcode": "00000",
-                        "country": "DummyCountry"
-                    },
-                    "contactTypes": ["DummyContactType"],
-                    "phones": [
-                        {
-                            "phoneNumber": "000-000-0000",
-                            "phoneType": "DummyType"
-                        }
-                    ],
-                    "lastModified": "2000-01-01"
-                }
-            ]
-            
+
+            # Construct the facility structure
             facility = {
-                "recordid": chem.get("_id", "DummyRecordID"),
-                "facilityName": business.get("name", "DummyFacilityName"),
+                "recordId": chem.get("_id", "DummyRecordID"),
+                "facilityName": business.get("name", "Unknown Facility"),
                 "streetAddress": {
-                    "street": business.get("street", "DummyStreet"),
-                    "city": business.get("city", "DummyCity"),
-                    "state": business.get("state", "DummyState"),
+                    "street": business.get("street", "Unknown Street"),
+                    "city": business.get("city", "Unknown City"),
+                    "state": business.get("state", "Unknown State"),
                     "zipcode": business.get("zip", "00000")
                 },
                 "mailingAddress": {
@@ -87,51 +70,34 @@ def get_final_json():
                     "city": business.get("city"),
                     "state": business.get("state"),
                     "zipcode": business.get("zip"),
-                    "country": business.get("country")
+                    "country": business.get("country", "Unknown Country")
                 },
-                "county": business.get("county", "DummyCounty"),
-                "fireDistrict": business.get("FireDistrict", "DummyFireDistrict"),
+                "county": business.get("country", ""),
+                "fireDistrict": business.get("FireDistrict", "Unknown FireDistrict"),
                 "latLong": {
                     "latitude": business.get("latitude", 0.0),
                     "longitude": business.get("longitude", 0.0)
                 },
-                "department": business.get("Department", "DummyDepartment"),
-                "notes": business.get("Notes", "DummyNotes"),
+                "department": business.get("Department", "Unknown Department"),
+                "notes": business.get("Notes", ""),
                 "sitePlanAttached": business.get("site plan attached", False),
                 "siteCoordAbbrevAttached": business.get("site coordinate abbreviation", False),
-                "dikeDescriptionAttached": business.get("dike description attached", False),
                 "facilityInfoSameAsLastYear": business.get("info_same_as_last_year", False),
-                "nameAndTitleOfCertifier": business.get("certifier name", "DummyCertifier"),
+                "nameAndTitleOfCertifier": business.get("certifier name", "Unknown Certifier"),
                 "dateSigned": business.get("date signed", "2000-01-01"),
                 "feesTotal": business.get("fees total", 0.0),
                 "phone": {
                     "phoneNumber": business.get("phone", "000-000-0000"),
-                    "phoneType": business.get("phoneType", "DummyPhoneType")
+                    "phoneType": business.get("phoneType", "Unknown")
                 },
                 "manned": business.get("manned", False),
                 "maxNumOccupants": business.get("max no. of occupants", 0),
                 "subjectToChemAccidentPrevention": business.get("subject to chemical prevention", False),
                 "subjectToEmergencyPlanning": business.get("emergency planning", False),
-                "LEPC": business.get("LEPC", "DummyLEPC"),
-                "contactIds": business.get("contacts", []),
-                "stateFields": [
-                    {
-                        "label": "DummyLabel",
-                        "t2sFieldname": "DummyFieldName",
-                        "data": "DummyData"
-                    }
-                ],
-                "facilityIds": [
-                    {
-                        "recordid": "DummyRecordID",
-                        "type": "NAICS",
-                        "id": "123456",
-                        "description": "DummyDescription"
-                    }
-                ],
+                "LEPC": business.get("LEPC", "Unknown LEPC"),
                 "lastModified": business.get("last modified", "2000-01-01"),
                 "chemicals": [{
-                    "chemName": chem.get("Product Name", "DummyChemical"),
+                    "chemName": chem.get("Product Name", "Unknown Chemical"),
                     "casNumber": chem.get("Product Code/CAS", "000-00-0"),
                     "ehs": chem.get("is it EHS (extremely hazardous)?", False),
                     "pure": chem.get("Pure or Mixt.", "") == "Pure",
@@ -139,57 +105,40 @@ def get_final_json():
                     "solid": chem.get("Solid", False),
                     "liquid": chem.get("Liquid", False),
                     "gas": chem.get("Gas", False),
-                    "hazards": [{
-                        "category": "DummyHazardCategory",
-                        "value": False
-                    }],
                     "aveAmount": chem.get("Average Daily Amount Stored(pounds)", 0),
-                    "aveAmountCode": "00",
                     "maxAmount": chem.get("Maximum Daily Amount Stored(pounds)", 0),
-                    "maxAmountCode": "00",
                     "belowReportingThresholds": chem.get("Below Reporting Thresholds", False),
-                    "confidentialStorageLocs": False,
-                    "tradeSecret": False,
-                    "daysOnSite": 365,
-                    "sameAsLastYear": False,
-                    "storageLocations": [{
-                        "locationDescription": "DummyLocation",
-                        "storageType": "DummyStorageType",
-                        "pressure": "DummyPressure",
-                        "temperature": "DummyTemperature",
-                        "amount": 0,
-                        "unit": "DummyUnit"
-                    }],
-                    "mixtureComponents": [{
-                        "componentName": "DummyComponent",
-                        "casNumber": "000-00-0",
-                        "ehs": False,
-                        "maxAmountCode": "00",
-                        "componentPercentage": 0,
-                        "weightOrVolume": "DummyWeightOrVolume"
-                    }]
                 }],
                 "contacts": [{
-                    "firstName": "DummyFirstName",
-                    "lastName": "DummyLastName",
-                    "title": "DummyTitle",
-                    "email": "dummy@example.com",
-                    "mailingAddress": {
-                        "street": "DummyStreet",
-                        "city": "DummyCity",
-                        "state": "DummyState",
-                        "zipcode": "00000",
-                        "country": "DummyCountry"
-                    },
-                    "contactTypes": ["DummyContactType"],
+                    "firstName": business.get("Emergency fname"),
+                    "lastName": business.get("Emergency lname"),
+                    "email": business.get("emergency email 1"),
+                    "mailingAddress": business.get("emergency mail address"),
+                    "contactTypes": [business.get("emergency phone type")],
                     "phones": [{
-                        "phoneNumber": "000-000-0000",
-                        "phoneType": "DummyType"
+                        "phoneNumber": business.get("emergency phone number 1"),
+                        "phoneType": business.get("emergency phone type")
                     }],
-                    "lastModified": "2000-01-01"
+                    "lastModified": business.get("Modified Date")
                 }]
             }
 
             final_json["facilities"].append(facility)
 
     return final_json
+
+def pretty_print_json(data):
+    """
+    Formats and prints JSON in a readable way.
+    """
+    try:
+        formatted_json = json.dumps(data, indent=4)
+        print(formatted_json)
+        return formatted_json
+    except (TypeError, ValueError) as e:
+        print(f"Error formatting JSON: {e}")
+        return None
+
+# Fetch and print the final JSON
+final_data = get_final_json()
+pretty_print_json(final_data)
