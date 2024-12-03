@@ -43,7 +43,7 @@ def write_xml_to_file(json_data, file_path):
     """
     Converts JSON data to XML and writes it to a specified file.
     """
-    xml_data = f"<root>\n{json_to_xml(json_data)}\n</root>"
+    xml_data = f"<epcraTier2Dataset xmlns='https://cameo.noaa.gov/epcra_tier2/data_standard/v1' version='1.0.0'>\n{json_to_xml(json_data)}\n</epcraTier2Dataset>"
     with open(file_path, "w", encoding="utf-8") as xml_file:
         xml_file.write(xml_data)
     return file_path
