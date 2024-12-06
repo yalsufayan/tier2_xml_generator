@@ -92,6 +92,8 @@ def create_xml_and_send_email(request: EmailRequest):
 
         uid = request.unique_id
 
+        print("uid: ",uid)
+
         # Retrieve JSON data from main.py
         dataset_json = get_final_json(filter_id=uid)
 
