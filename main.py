@@ -45,9 +45,9 @@ def get_final_json(filter_id):
     Generates the final JSON structure by combining business and chemical inventory data.
     """
     business_data = fetch_data(DATA_TYPES["Business"])
-    print("this is business\n",business_data)
+    # print("this is business\n",business_data)
     chemical_inventory_data = fetch_data(DATA_TYPES["Chemical Inventory"])
-    print("this is chemical data \n", chemical_inventory_data)
+    # print("this is chemical data \n", chemical_inventory_data)
     business_dict = {biz["_id"]: biz for biz in business_data}
 
     final_json = {"reportYear": 2019, "facilities": []}
