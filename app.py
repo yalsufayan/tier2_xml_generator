@@ -17,6 +17,9 @@ SENDER_PASSWORD = "mkwt pyym fryt muoy"
 
 class EmailRequest(BaseModel):
     recipient_email: str
+    unique_id: str
+
+    
     
 def json_to_xml(json_obj, line_padding=""):
     """
@@ -87,8 +90,10 @@ def create_xml_and_send_email(request: EmailRequest):
         # Retrieve recipient email from the request body
         recipient_email = request.recipient_email
 
+        uid = request.unique_id
+
         # Retrieve JSON data from main.py
-        dataset_json = get_final_json()
+        dataset_json = get_final_json(filter_id=uid)
 
         # Generate XML and save to file
         xml_file_path = "Tier2.xml"
@@ -104,7 +109,7 @@ def create_xml_and_send_email(request: EmailRequest):
         body = "Please find the attached Tier2 Report."
         send_email_with_attachment(recipient_email, subject, body, zip_file_path)
 
-        return {"message": "XML generated, zipped, and sent via email successfully."}
+        return {"message": "XML generated, zipped, and sent via email successfully.", "code":"200"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process request: {str(e)}")
     finally:

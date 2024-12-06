@@ -40,12 +40,14 @@ def fetch_data(data_type):
             break
     return all_data
 
-def get_final_json():
+def get_final_json(filter_id):
     """
     Generates the final JSON structure by combining business and chemical inventory data.
     """
     business_data = fetch_data(DATA_TYPES["Business"])
+    print("this is business\n",business_data)
     chemical_inventory_data = fetch_data(DATA_TYPES["Chemical Inventory"])
+    print("this is chemical data \n", chemical_inventory_data)
     business_dict = {biz["_id"]: biz for biz in business_data}
 
     final_json = {"reportYear": 2019, "facilities": []}
@@ -54,6 +56,10 @@ def get_final_json():
         business_id = chem.get("business")
         if business_id in business_dict:
             business = business_dict[business_id]
+
+            # Filter by email if specified
+            if filter_id and business.get("Created By") != filter_id:
+                continue
 
             # Construct the facility structure
             facility = {
@@ -140,5 +146,5 @@ def pretty_print_json(data):
         return None
 
 # Fetch and print the final JSON
-final_data = get_final_json()
-pretty_print_json(final_data)
+# final_data = get_final_json()
+# pretty_print_json(final_data)
