@@ -1,8 +1,9 @@
 import requests
 import json
+import os
 
-BASE_URL = "https://envotrack.com/api/1.1/obj"
-API_KEY = "7475aebe1a2505a2a0581b0c24b48562"
+BASE_URL = os.getenv("BASE_URL")
+API_KEY = os.getenv("API_KEY")
 
 DATA_TYPES = {
     "Business": "Business",
