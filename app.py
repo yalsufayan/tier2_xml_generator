@@ -12,7 +12,7 @@ from main import get_final_json  # Import from main.py
 app = FastAPI()
 
 # Email credentials (use environment variables or a secure vault in production)
-SENDER_EMAIL = "kappsmapalo@gmail.com"
+SENDER_EMAIL = "yalsufayan@gmail.com"
 SENDER_PASSWORD = "mkwt pyym fryt muoy"
 
 class EmailRequest(BaseModel):
