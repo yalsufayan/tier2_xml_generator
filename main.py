@@ -84,14 +84,9 @@ def get_final_json(filter_id):
                     "latitude": business.get("latitude", 0.0),
                     "longitude": business.get("longitude", 0.0)
                 },
-                "department": business.get("Department", "Unknown Department"),
-                "notes": business.get("Notes", ""),
                 "sitePlanAttached": business.get("site plan attached", False),
                 "siteCoordAbbrevAttached": business.get("site coordinate abbreviation", False),
                 "facilityInfoSameAsLastYear": business.get("info_same_as_last_year", False),
-                "nameAndTitleOfCertifier": business.get("certifier name", "Unknown Certifier"),
-                "dateSigned": business.get("date signed", "2000-01-01"),
-                "feesTotal": business.get("fees total", 0.0),
                 "phone": {
                     "phoneNumber": business.get("phone", "000-000-0000"),
                     "phoneType": business.get("phoneType", "Unknown")
@@ -100,7 +95,6 @@ def get_final_json(filter_id):
                 "maxNumOccupants": business.get("max no. of occupants", 0),
                 "subjectToChemAccidentPrevention": business.get("subject to chemical prevention", False),
                 "subjectToEmergencyPlanning": business.get("emergency planning", False),
-                "LEPC": business.get("LEPC", "Unknown LEPC"),
                 "lastModified": business.get("last modified", "2000-01-01"),
                 "chemicals": [{
                     "chemName": chem.get("Product Name", "Unknown Chemical"),
